@@ -1,7 +1,14 @@
+import 'package:chatapp/utils.dart';
 import 'package:flutter/material.dart';
 
-void main() {
+void main() async {
+  await setup();
   runApp(const MyApp());
+}
+
+Future<void> setup() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await setupFirebase();
 }
 
 class MyApp extends StatelessWidget {
