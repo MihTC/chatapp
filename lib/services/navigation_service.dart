@@ -1,13 +1,14 @@
 import 'package:chatapp/pages/home_page.dart';
 import 'package:chatapp/pages/login_page.dart';
+import 'package:chatapp/pages/register_page.dart';
 import 'package:flutter/widgets.dart';
-import 'package:path/path.dart';
 
 class NavigationService {
   late GlobalKey<NavigatorState> _navigatorKey;
 
   final Map<String, Widget Function(BuildContext)> _routes = {
     "/login": (context) => const LoginPage(),
+    "/register": (context) => const RegisterPage(),
     "/home": (context) => const HomePage(),
   };
 
