@@ -1,4 +1,5 @@
 import 'package:chatapp/consts.dart';
+import 'package:chatapp/services/alert_service.dart';
 import 'package:chatapp/services/auth_service.dart';
 import 'package:chatapp/services/navigation_service.dart';
 import 'package:chatapp/widget/custom_form_field.dart';
@@ -19,6 +20,7 @@ class _LoginPageState extends State<LoginPage> {
 
   late AuthService _authService;
   late NavigationService _navigationService;
+  late AlertService _alertService;
 
   String? email, password;
 
@@ -27,6 +29,7 @@ class _LoginPageState extends State<LoginPage> {
     super.initState();
     _authService = _getIt.get<AuthService>();
     _navigationService = _getIt.get<NavigationService>();
+    _alertService = _getIt.get<AlertService>();
   }
 
   @override
@@ -116,7 +119,11 @@ class _LoginPageState extends State<LoginPage> {
             bool result = await _authService.login(email!, password!);
             if (result) {
               _navigationService.pushReplacementNamed("/home");
-            } else {}
+            } else {
+              _alertService.showToast(
+                  text: "Failed to login, Please try again!!",
+                  icon: Icons.error);
+            }
           }
         },
         color: Theme.of(context).colorScheme.primary,
