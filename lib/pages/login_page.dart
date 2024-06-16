@@ -3,7 +3,6 @@ import 'package:chatapp/services/alert_service.dart';
 import 'package:chatapp/services/auth_service.dart';
 import 'package:chatapp/services/navigation_service.dart';
 import 'package:chatapp/widget/custom_form_field.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 

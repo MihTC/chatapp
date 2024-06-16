@@ -1,4 +1,3 @@
-import 'package:chatapp/pages/login_page.dart';
 import 'package:chatapp/services/auth_service.dart';
 import 'package:chatapp/services/navigation_service.dart';
 import 'package:chatapp/utils.dart';

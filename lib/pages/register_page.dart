@@ -1,8 +1,10 @@
 import 'dart:io';
 
 import 'package:chatapp/consts.dart';
+import 'package:chatapp/services/auth_service.dart';
 import 'package:chatapp/services/media_service.dart';
 import 'package:chatapp/services/navigation_service.dart';
+import 'package:chatapp/services/storage_service.dart';
 import 'package:chatapp/widget/custom_form_field.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -17,17 +19,24 @@ class RegisterPage extends StatefulWidget {
 class _RegisterPageState extends State<RegisterPage> {
   String? email, password, name;
   File? selectionImage;
+  bool isLoading = false;
+
+  final GlobalKey<FormState> _registerFormKey = GlobalKey();
 
   final GetIt _getIt = GetIt.instance;
 
   late MediaService _mediaService;
   late NavigationService _navigationService;
+  late AuthService _authService;
+  late StorageService _storageService;
 
   @override
   void initState() {
     super.initState();
     _mediaService = _getIt.get<MediaService>();
     _navigationService = _getIt.get<NavigationService>();
+    _authService = _getIt.get<AuthService>();
+    _storageService = _getIt.get<StorageService>();
   }
 
   @override
@@ -43,7 +52,16 @@ class _RegisterPageState extends State<RegisterPage> {
         child: Padding(
       padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 20.0),
       child: Column(
-        children: [_headerText(), _registerForm(), _loginAccountLink()],
+        children: [
+          _headerText(),
+          if (!isLoading) _registerForm(),
+          if (!isLoading) _loginAccountLink(),
+          if (isLoading)
+            const Expanded(
+                child: Center(
+              child: CircularProgressIndicator(),
+            ))
+        ],
       ),
     ));
   }
@@ -73,6 +91,7 @@ class _RegisterPageState extends State<RegisterPage> {
       margin: EdgeInsets.symmetric(
           vertical: MediaQuery.sizeOf(context).height * 0.05),
       child: Form(
+        key: _registerFormKey,
         child: Column(
           mainAxisSize: MainAxisSize.max,
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -92,7 +111,7 @@ class _RegisterPageState extends State<RegisterPage> {
             CustomFormField(
               height: MediaQuery.sizeOf(context).height * 0.1,
               hintText: "Email",
-              validationRegEx: NAME_VALIDATION_REGEX,
+              validationRegEx: EMAIL_VALIDATION_REGEX,
               onSaved: (value) {
                 setState(() {
                   email = value;
@@ -141,17 +160,30 @@ class _RegisterPageState extends State<RegisterPage> {
       width: MediaQuery.sizeOf(context).width,
       child: MaterialButton(
         onPressed: () async {
-          // if (_loginFormKey.currentState?.validate() ?? false) {
-          //   _loginFormKey.currentState?.save();
-          //   bool result = await _authService.login(email!, password!);
-          //   if (result) {
-          //     _navigationService.pushReplacementNamed("/home");
-          //   } else {
-          //     _alertService.showToast(
-          //         text: "Failed to login, Please try again!!",
-          //         icon: Icons.error);
-          //   }
-          // }
+          setState(() {
+            isLoading = true;
+          });
+          try {
+            if ((_registerFormKey.currentState?.validate() ?? false) &&
+                selectionImage != null) {
+              _registerFormKey.currentState?.save();
+              bool result = await _authService.signup(email!, password!);
+              if (result) {
+                String? pfpURL = await _storageService.uploadUserPfp(
+                    file: selectionImage!, uid: _authService.user!.uid);
+                //_navigationService.pushReplacementNamed("/home");
+              } else {
+                // _alertService.showToast(
+                //     text: "Failed to login, Please try again!!",
+                //     icon: Icons.error);
+              }
+            }
+          } catch (e) {
+            print(e);
+          }
+          setState(() {
+            isLoading = false;
+          });
         },
         color: Theme.of(context).colorScheme.primary,
         child: const Text(
