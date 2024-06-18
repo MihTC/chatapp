@@ -1,4 +1,5 @@
 import 'package:chatapp/models/user_profile.dart';
+import 'package:chatapp/pages/chat_page.dart';
 import 'package:chatapp/services/alert_service.dart';
 import 'package:chatapp/services/auth_service.dart';
 import 'package:chatapp/services/database_service.dart';
@@ -79,7 +80,20 @@ class _HomePageState extends State<HomePage> {
                 UserProfile user = users[index].data();
                 return Padding(
                   padding: const EdgeInsets.symmetric(vertical: 10),
-                  child: ChatTile(userProfile: user, onTap: () {}),
+                  child: ChatTile(
+                      userProfile: user,
+                      onTap: () async {
+                        final chatExists = await _databaseService
+                            .checkChatExists(_authService.user!.uid, user.uid!);
+                        if (!chatExists) {
+                          await _databaseService.createNewChat(
+                              _authService.user!.uid, user.uid!);
+                        }
+                        _navigationService
+                            .push(MaterialPageRoute(builder: (context) {
+                          return ChatPage(chatUser: user);
+                        }));
+                      }),
                 );
               });
         }

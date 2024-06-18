@@ -21,4 +21,18 @@ class StorageService {
       return null;
     });
   }
+
+  Future<String?> uploadImageToChat(
+      {required File file, required String chatID}) async {
+    Reference fileFef = _firebaseStorage
+        .ref("chats/$chatID")
+        .child("${DateTime.now().toIso8601String()}${p.extension(file.path)}");
+    UploadTask task = fileFef.putFile(file);
+    return task.then((p) {
+      if (p.state == TaskState.success) {
+        return fileFef.getDownloadURL();
+      }
+      return null;
+    });
+  }
 }
